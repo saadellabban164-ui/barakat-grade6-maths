@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://saadellabban164-ui.github.io/vsos/sitemap.xml
+Sitemap: https://saadellabban164-ui.github.io/barakat-grade6-maths/sitemap.xml
