@@ -4,7 +4,7 @@ This is the English Grade 6 Maths quiz platform for the language classes **6A** 
 
 ## Current product behavior
 
-The site contains a 20-question Maths practice quiz, a 20-minute timer, student name and class selection, per-class leaderboard, PWA installation, and an admin portal entry point. There are no seeded student names, fake scores, demo credentials, or placeholder content. The leaderboard stays empty until real results are recorded.
+The site contains a teacher-configured Maths quiz, a per-quiz timer, student account and class selection, per-class leaderboard, PWA installation, and an admin portal entry point. There are no seeded student names, fake scores, demo credentials, or placeholder content. The leaderboard stays empty until real results are recorded.
 
 Without Firebase configuration, student profiles and results are saved only in the browser used to take the quiz. This is intentionally shown as local device storage and is not presented as a shared school database.
 
