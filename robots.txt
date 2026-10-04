@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://saadellabban164-ui.github.io/vsos/sitemap.xml
