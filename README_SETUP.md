@@ -8,6 +8,10 @@ The site contains a 20-question Maths practice quiz, a 20-minute timer, student 
 
 Without Firebase configuration, student profiles and results are saved only in the browser used to take the quiz. This is intentionally shown as local device storage and is not presented as a shared school database.
 
+## Student account flow
+
+Students create an account or sign in with Firebase Email/Password. After authentication, the site opens an English Main Menu with two sections: Leaderboard for the signed-in class and Quizzes. The Quizzes section reads documents published by the Admin portal from the Firestore `quizzes` collection.
+
 ## Production Firebase setup
 
 1. Create a Firebase Web App for the school.
