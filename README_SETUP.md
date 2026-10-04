@@ -19,6 +19,12 @@ Without Firebase configuration, student profiles and results are saved only in t
 
 The web configuration values are not service-account secrets. Access control comes from Firebase Authentication and Firestore Rules. The Admin portal refuses access when Firebase is not configured; there is no hard-coded fallback password.
 
+## Admin password and security
+
+There is intentionally no admin password in this repository. Create the teacher account in Firebase Authentication and choose its password there. The password is stored and checked by Firebase Auth, not by this website. Then issue the account an `admin: true` custom claim from a trusted server environment. The portal checks both the Firebase password login and the custom claim before showing the admin area.
+
+The Firestore rules validate score shape, class, score range, name length, and UID ownership. Students cannot update or delete submitted cloud scores; only an account with the `admin` claim can manage scores and quizzes. A browser quiz cannot prove that a client did not tamper with its own answers, so a tamper-resistant shared leaderboard requires a trusted Cloud Function to calculate scores from submitted answers. Until that backend is installed, local scores are explicitly treated as device-only and Firebase rules limit the damage to the validated document shape.
+
 ## Firebase collections
 
 - `students/{uid}` stores the student profile for the authenticated anonymous user.
