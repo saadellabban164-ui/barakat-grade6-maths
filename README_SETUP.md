@@ -1,0 +1,44 @@
+# Grade 6 Maths — Barakat Private Language School
+
+This is the English Grade 6 Maths quiz platform for the language classes **6A** and **6B** at **Barakat Private Language School**. It is branded as Grade 6 Maths and built by VSOS — Saad El Labban.
+
+## Current product behavior
+
+The site contains a teacher-configured Maths quiz, a per-quiz timer, student account and class selection, per-class leaderboard, PWA installation, and an admin portal entry point. There are no seeded student names, fake scores, demo credentials, or placeholder content. The leaderboard stays empty until real results are recorded.
+
+Without Firebase configuration, student profiles and results are saved only in the browser used to take the quiz. This is intentionally shown as local device storage and is not presented as a shared school database.
+
+## Student access flow
+
+Students use one English button: `Create or continue`. They provide only their full name and class; no email or password is requested. When a Firebase project is connected and Anonymous Authentication is enabled, the app uses Firebase Anonymous Auth and stores the student profile under `students/{uid}`. Without Firebase configuration, it uses a clearly local device session and does not claim to provide a shared online identity.
+
+The first screen opens the English Main Menu with Leaderboard and Quizzes. Quizzes are loaded from the Firestore `quizzes` collection when a Firebase session is available.
+
+## Production Firebase setup
+
+1. Create a Firebase Web App for the school.
+2. Enable Firebase Authentication with Email/Password and create the teacher admin account.
+3. Create Firestore and deploy `firebase.rules`.
+4. Put only the Firebase Web App configuration in `firebase-config.js` as `window.FIREBASE_CONFIG`.
+5. Give the teacher account the `admin: true` custom claim from a trusted server environment. Never put a service-account key in this repository.
+6. Enable GitHub Pages for `main` and the repository root.
+
+The web configuration values are not service-account secrets. Access control comes from Firebase Authentication and Firestore Rules. The Admin portal refuses access when Firebase is not configured; there is no hard-coded fallback password.
+
+## Admin password and security
+
+There is intentionally no admin password in this repository. Create the teacher account in Firebase Authentication and choose its password there. The password is stored and checked by Firebase Auth, not by this website. Then issue the account an `admin: true` custom claim from a trusted server environment. The portal checks both the Firebase password login and the custom claim before showing the admin area.
+
+The Firestore rules validate score shape, class, score range, name length, and UID ownership. Students cannot update or delete submitted cloud scores; only an account with the `admin` claim can manage scores and quizzes. A browser quiz cannot prove that a client did not tamper with its own answers, so a tamper-resistant shared leaderboard requires a trusted Cloud Function to calculate scores from submitted answers. Until that backend is installed, local scores are explicitly treated as device-only and Firebase rules limit the damage to the validated document shape.
+
+## Firebase collections
+
+- `students/{uid}` stores the student profile for the authenticated anonymous user.
+- `scores/{scoreId}` stores a submitted score with the class and student UID.
+- `quizzes/{quizId}` stores quizzes published by an authenticated admin.
+
+The current front end keeps a local copy for offline use. Connect a school Firebase project before treating the leaderboard as a shared online record.
+
+## PWA and notifications
+
+`manifest.webmanifest` provides the installable app name **Grade 6 Maths**. `sw.js` caches the app shell. Browser notifications can be extended with Firebase Cloud Messaging and a trusted Cloud Function; server keys must never be placed in the client repository.
