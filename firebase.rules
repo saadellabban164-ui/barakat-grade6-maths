@@ -3,10 +3,7 @@ service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn() { return request.auth != null; }
     function isAdmin() {
-      return signedIn() && (
-        request.auth.token.admin == true ||
-        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
-      );
+      return signedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
     function validStudent() {
       return request.resource.data.keys().hasOnly(['name', 'username', 'class', 'createdAt', 'updatedAt'])
@@ -49,7 +46,7 @@ service cloud.firestore {
         && request.resource.data.timeLimit <= 120;
     }
     match /admins/{uid} {
-      // Create this document manually in the Firebase Console after creating the teacher account.
+      // Create this document manually in Firebase Console. Browser users cannot change admin access.
       allow read: if signedIn() && request.auth.uid == uid;
       allow write: if false;
     }
