@@ -1,0 +1,68 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isAdmin() {
+      return signedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+    function validStudent() {
+      return request.resource.data.keys().hasOnly(['name', 'username', 'class', 'createdAt', 'updatedAt'])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() >= 2
+        && request.resource.data.name.size() <= 60
+        && request.resource.data.username is string
+        && request.resource.data.username.matches('^[a-zA-Z0-9._-]{3,30}$')
+        && request.resource.data.class in ['6A', '6B'];
+    }
+    function validScore() {
+      return request.resource.data.keys().hasOnly(['name', 'class', 'score', 'outOf', 'quizTitle', 'date', 'uid', 'createdAt'])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() >= 2
+        && request.resource.data.name.size() <= 60
+        && request.resource.data.class in ['6A', '6B']
+        && request.resource.data.score is int
+        && request.resource.data.score >= 0
+        && request.resource.data.score <= 20
+        && request.resource.data.outOf is int
+        && request.resource.data.outOf >= 1
+        && request.resource.data.outOf <= 20
+        && request.resource.data.score <= request.resource.data.outOf
+        && request.resource.data.quizTitle is string
+        && request.resource.data.quizTitle.size() >= 1
+        && request.resource.data.quizTitle.size() <= 80
+        && request.resource.data.uid == request.auth.uid;
+    }
+    function validQuiz() {
+      return request.resource.data.keys().hasOnly(['title', 'class', 'questionCount', 'timeLimit', 'date', 'createdAt'])
+        && request.resource.data.title is string
+        && request.resource.data.title.size() >= 1
+        && request.resource.data.title.size() <= 80
+        && request.resource.data.class in ['all', '6A', '6B']
+        && request.resource.data.questionCount is int
+        && request.resource.data.questionCount >= 1
+        && request.resource.data.questionCount <= 20
+        && request.resource.data.timeLimit is int
+        && request.resource.data.timeLimit >= 1
+        && request.resource.data.timeLimit <= 120;
+    }
+    match /admins/{uid} {
+      // Create this document manually in Firebase Console. Browser users cannot change admin access.
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow write: if false;
+    }
+    match /quizzes/{quizId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isAdmin() && validQuiz();
+    }
+    match /scores/{scoreId} {
+      allow read: if signedIn();
+      allow create: if signedIn() && validScore();
+      allow update, delete: if isAdmin();
+    }
+    match /students/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow create, update: if signedIn() && request.auth.uid == uid && validStudent();
+      allow delete: if isAdmin();
+    }
+  }
+}
